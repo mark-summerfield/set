@@ -1,3 +1,3 @@
-module github.com/mark-summerfield/set
+module set
 
 go 1.22.0
