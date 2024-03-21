@@ -234,6 +234,24 @@ func TestAll(t *testing.T) {
 	}
 }
 
+func TestAllX(t *testing.T) {
+	s := New(10, 20, 30, 40, 50, 60, 70, 80, 90)
+	n := 0
+	for i, v := range s.AllX() {
+		n += v + i
+	}
+	if n != 486 {
+		t.Errorf("expected 486, got %d", n)
+	}
+	n = 0
+	for i, v := range s.AllX(1) {
+		n += v + i
+	}
+	if n != 495 {
+		t.Errorf("expected 495, got %d", n)
+	}
+}
+
 func TestEg(t *testing.T) {
 	s := New(1, 2, 3, 4, 5, 6)
 	d := s.Difference(New(2, 4))

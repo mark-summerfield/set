@@ -162,6 +162,23 @@ func (me *Set[E]) All() iter.Seq[E] {
 	}
 }
 
+// AllX returns an iterator, e.g.,
+// for count, element := range set.AllX(1) ...
+func (me *Set[E]) AllX(start ...int) iter.Seq2[int, E] {
+	return func(yield func(int, E) bool) {
+		i := 0
+		if len(start) > 0 {
+			i = start[0]
+		}
+		for key := range me.set {
+			if !yield(i, key) {
+				return
+			}
+			i++
+		}
+	}
+}
+
 // ToSlice returns this set's elements as a slice.
 // For iteration either use this, or if you only need one value at a time,
 // use map syntax with a for loop.
