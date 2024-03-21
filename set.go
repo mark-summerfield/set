@@ -130,11 +130,6 @@ func (me *Set[E]) IsDisjoint(other Set[E]) bool {
 			return false
 		}
 	}
-	for element := range other.set {
-		if _, ok := me.set[element]; ok {
-			return false
-		}
-	}
 	return true
 }
 
