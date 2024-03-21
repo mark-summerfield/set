@@ -12,19 +12,15 @@ import (
 
 var MaxDisplayableElements = 100
 
-// Set provides a set of ordered elements.
-// The empty Set is usable but must be declared with a type, e.g.,
-//
-//	var set Set[int]
 type Set[E cmp.Ordered] struct{ set map[E]struct{} }
 
 // New returns a new set containing the given elements (if any).
 // If no elements are given, the type must be specified since it can't be
-// inferred. (For that case, use the Set type directly.)
+// inferred.
 func New[E cmp.Ordered](elements ...E) Set[E] {
 	set := Set[E]{make(map[E]struct{}, len(elements))}
-	for _, element := range elements {
-		set.set[element] = struct{}{}
+	if len(elements) > 0 {
+		set.Add(elements...)
 	}
 	return set
 }
@@ -107,9 +103,7 @@ func (me *Set[E]) Intersection(other Set[E]) Set[E] {
 // See also [Set.Unite].
 func (me *Set[E]) Union(other Set[E]) Set[E] {
 	union := me.Clone()
-	for element := range other.set {
-		union.set[element] = struct{}{}
-	}
+	union.Unite(other)
 	return union
 }
 

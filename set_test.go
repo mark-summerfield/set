@@ -18,7 +18,7 @@ func check(act string, actSize int, exp string, expSize int, t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
-	var s1 Set[int]
+	s1 := New[int]()
 	check(s1.String(), s1.Len(), "{}", 0, t)
 	s2 := New(5)
 	check(s2.String(), s2.Len(), "{5}", 1, t)
@@ -26,7 +26,7 @@ func TestNew(t *testing.T) {
 	check(s3.String(), s3.Len(), "{35 50 78}", 3, t)
 	s4 := New("one", "two")
 	check(s4.String(), s4.Len(), "{\"one\" \"two\"}", 2, t)
-	var a Set[int]
+	a := New[int]()
 	check(a.String(), a.Len(), "{}", 0, t)
 	b := New("a string")
 	check(b.String(), b.Len(), "{\"a string\"}", 1, t)
@@ -68,6 +68,8 @@ func TestClear(t *testing.T) {
 	s := New(19, 21, 1, 2, 5, 4, 8, 9, 11, 13, 7)
 	s.Clear()
 	check(s.String(), s.Len(), "{}", 0, t)
+	s.Add(1, 2, 3)
+	check(s.String(), s.Len(), "{1 2 3}", 3, t)
 }
 
 func TestContains(t *testing.T) {
@@ -225,4 +227,12 @@ func TestAll(t *testing.T) {
 	if n != 450 {
 		t.Errorf("expected 450, got %d", n)
 	}
+}
+
+func TestEg(t *testing.T) {
+	s := New(1, 2, 3, 4, 5, 6)
+	d := s.Difference(New(2, 4))
+	v := d.ToSlice()
+	slices.Sort(v)
+	check(fmt.Sprintf("%v", v), len(v), "[1 3 5 6]", d.Len(), t)
 }
