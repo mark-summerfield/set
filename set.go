@@ -90,11 +90,6 @@ func (me *Set[E]) Intersection(other Set[E]) Set[E] {
 			intersection.set[element] = struct{}{}
 		}
 	}
-	for element := range other.set {
-		if _, ok := me.set[element]; ok {
-			intersection.set[element] = struct{}{}
-		}
-	}
 	return intersection
 }
 

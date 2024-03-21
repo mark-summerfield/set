@@ -105,6 +105,11 @@ func TestIntersection(t *testing.T) {
 	u := New(2, 4, 6, 8)
 	x := s.Intersection(u)
 	check(x.String(), x.Len(), "{2 4 6 8}", 4, t)
+	v := New(1, 3, 5)
+	y := u.Intersection(v)
+	check(y.String(), y.Len(), "{}", 0, t)
+	z := v.Intersection(u)
+	check(z.String(), z.Len(), "{}", 0, t)
 }
 
 func TestUnion(t *testing.T) {
