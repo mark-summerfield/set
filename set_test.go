@@ -95,8 +95,16 @@ func TestSymmetricDifference(t *testing.T) {
 	s := New(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 	u := New(2, 4, 6, 8)
 	d := s.SymmetricDifference(u)
+	e := u.SymmetricDifference(s)
+	if !d.Equal(e) {
+		t.Errorf("unexpected unequal: d=%v e=%v", d, e)
+	}
 	check(d.String(), d.Len(), "{0 1 3 5 7 9}", 6, t)
 	d = u.SymmetricDifference(s)
+	e = u.SymmetricDifference(s)
+	if !d.Equal(e) {
+		t.Errorf("unexpected unequal: d=%v e=%v", d, e)
+	}
 	check(d.String(), d.Len(), "{0 1 3 5 7 9}", 6, t)
 }
 
@@ -104,11 +112,23 @@ func TestIntersection(t *testing.T) {
 	s := New(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 	u := New(2, 4, 6, 8)
 	x := s.Intersection(u)
+	a := u.Intersection(s)
+	if !x.Equal(a) {
+		t.Errorf("unexpected unequal: %v != %v", x, a)
+	}
 	check(x.String(), x.Len(), "{2 4 6 8}", 4, t)
 	v := New(1, 3, 5)
 	y := u.Intersection(v)
+	b := v.Intersection(u)
+	if !y.Equal(b) {
+		t.Errorf("unexpected unequal: %v != %v", y, b)
+	}
 	check(y.String(), y.Len(), "{}", 0, t)
 	z := v.Intersection(u)
+	c := u.Intersection(v)
+	if !z.Equal(c) {
+		t.Errorf("unexpected unequal: %v != %v", z, c)
+	}
 	check(z.String(), z.Len(), "{}", 0, t)
 }
 
@@ -151,8 +171,14 @@ func TestIsDisjoint(t *testing.T) {
 	if s.IsDisjoint(u) {
 		t.Error("unexpectedly disjoint")
 	}
+	if u.IsDisjoint(s) {
+		t.Error("unexpectedly disjoint")
+	}
 	w := New(10, 11, 12)
 	if !u.IsDisjoint(w) {
+		t.Error("unexpectedly not disjoint")
+	}
+	if !w.IsDisjoint(u) {
 		t.Error("unexpectedly not disjoint")
 	}
 }
