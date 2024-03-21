@@ -171,6 +171,7 @@ func (me *Set[E]) ToSlice() []E {
 	for element := range me.set {
 		result = append(result, element)
 	}
+	slices.Sort(result)
 	return result
 }
 
