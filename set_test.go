@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"slices"
 	"sort"
+	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -242,11 +244,18 @@ func TestMap(t *testing.T) {
 }
 
 func TestStringMaxElements(t *testing.T) {
+	var out strings.Builder
+	out.WriteByte('{')
 	s := New[int]()
 	for i := 0; i < 111; i++ {
 		s.Add(i)
+		if i > 0 {
+			out.WriteByte(' ')
+		}
+		out.WriteString(strconv.Itoa(i))
 	}
-	check(s.String(), s.Len(), "{…111 elements…}", s.Len(), t)
+	out.WriteByte('}')
+	check(s.String(), s.Len(), out.String(), s.Len(), t)
 }
 
 func TestAll(t *testing.T) {

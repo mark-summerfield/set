@@ -10,8 +10,6 @@ import (
 	"strings"
 )
 
-var MaxDisplayableElements = 100
-
 type Set[E cmp.Ordered] struct{ set map[E]struct{} }
 
 // New returns a new set containing the given elements (if any).
@@ -193,26 +191,26 @@ func (me *Set[E]) ToSlice() []E {
 }
 
 // String returns a human readable string representation of the set.
-// If len(s) <= 100, returns "{e1 e2 ... eN}" with elements sorted by <;
-// otherwise returns "{…N elements…}" where N is len(s).
 func (me *Set[E]) String() string {
-	if len(me.set) > MaxDisplayableElements {
-		return fmt.Sprintf("{…%d elements…}", len(me.set))
+	format := "%s%v"
+	if me.hasStringKeys() {
+		format = "%s%q"
 	}
-	elements := me.ToSlice()
-	slices.Sort(elements)
 	var out strings.Builder
-	out.WriteString("{")
+	out.WriteByte('{')
 	sep := ""
-	for _, element := range elements {
-		out.WriteString(sep)
-		if selement, ok := any(element).(string); ok {
-			fmt.Fprintf(&out, "%q", selement)
-		} else {
-			fmt.Fprintf(&out, "%v", element)
-		}
+	for _, element := range me.ToSlice() { // <1>
+		fmt.Fprintf(&out, format, sep, element)
 		sep = " "
 	}
-	out.WriteString("}")
+	out.WriteByte('}')
 	return out.String()
+}
+
+func (me *Set[E]) hasStringKeys() bool {
+	for key := range me.set {
+		_, ok := any(key).(string)
+		return ok
+	}
+	return false
 }
