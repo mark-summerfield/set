@@ -193,7 +193,7 @@ func (me *Set[E]) ToSlice() []E {
 // String returns a human readable string representation of the set.
 func (me *Set[E]) String() string {
 	format := "%s%v"
-	if me.hasStringKeys() {
+	if me.hasStringElements() {
 		format = "%s%q"
 	}
 	var out strings.Builder
@@ -207,7 +207,7 @@ func (me *Set[E]) String() string {
 	return out.String()
 }
 
-func (me *Set[E]) hasStringKeys() bool {
+func (me *Set[E]) hasStringElements() bool {
 	for key := range me.set {
 		_, ok := any(key).(string)
 		return ok
