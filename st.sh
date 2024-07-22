@@ -8,4 +8,6 @@ echo \* cannot do "staticcheck ." no range func support
 go vet .
 echo \* cannot do "golangci-lint run" no range func support
 # golangci-lint run
+echo -n "go test . "
+go test .
 git st

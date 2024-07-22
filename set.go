@@ -177,10 +177,9 @@ func (me *Set[E]) AllX(start ...int) iter.Seq2[int, E] {
 	}
 }
 
-// ToSlice returns this set's elements as a slice.
+// ToSlice returns this set's elements as a sorted slice.
 // For iteration either use this, or if you only need one value at a time,
-// use map syntax with a for loop.
-// See also [ToSortedSlice].
+// use [All] or [AllX].
 func (me *Set[E]) ToSlice() []E {
 	result := make([]E, 0, len(me.set))
 	for element := range me.set {
