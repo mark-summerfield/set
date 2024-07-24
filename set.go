@@ -43,6 +43,10 @@ func (me *Set[E]) Clear() { clear(me.set) }
 // Len returns the number of elements in the set.
 func (me *Set[E]) Len() int { return len(me.set) }
 
+// IsEmpty returns true if there are no elements in the set; otherwise
+// returns false.
+func (me *Set[E]) IsEmpty() bool { return len(me.set) == 0 }
+
 // Contains returns true if element is in the set; otherwise returns false.
 // Alternatively, use map syntax.
 func (me *Set[E]) Contains(element E) bool {

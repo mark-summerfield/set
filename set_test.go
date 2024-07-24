@@ -21,8 +21,14 @@ func check(act string, actSize int, exp string, expSize int, t *testing.T) {
 
 func TestNew(t *testing.T) {
 	s1 := New[int]()
+	if !s1.IsEmpty() {
+		t.Errorf("unexpected nonempty")
+	}
 	check(s1.String(), s1.Len(), "{}", 0, t)
 	s2 := New(5)
+	if s2.IsEmpty() {
+		t.Errorf("unexpected empty")
+	}
 	check(s2.String(), s2.Len(), "{5}", 1, t)
 	s3 := New(50, 35, 78)
 	check(s3.String(), s3.Len(), "{35 50 78}", 3, t)
