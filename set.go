@@ -2,20 +2,18 @@
 package set
 
 import (
-	"cmp"
 	"fmt"
 	"iter"
 	"maps"
-	"slices"
 	"strings"
 )
 
-type Set[E cmp.Ordered] struct{ set map[E]struct{} }
+type Set[E comparable] struct{ set map[E]struct{} }
 
 // New returns a new set containing the given elements (if any).
 // If no elements are given, the type must be specified since it can't be
 // inferred.
-func New[E cmp.Ordered](elements ...E) Set[E] {
+func New[E comparable](elements ...E) Set[E] {
 	set := Set[E]{make(map[E]struct{}, len(elements))}
 	if len(elements) > 0 {
 		set.Add(elements...)
@@ -181,28 +179,27 @@ func (me *Set[E]) AllX(start ...int) iter.Seq2[int, E] {
 	}
 }
 
-// ToSlice returns this set's elements as a sorted slice.
+// ToSlice returns this set's elements as an unsorted slice.
 // For iteration either use this, or if you only need one value at a time,
-// use [All] or [AllX].
+// use [All] or [AllX]. To sort, use slices.Sorted (if E is cmp.Orderable).
 func (me *Set[E]) ToSlice() []E {
-	result := make([]E, 0, len(me.set))
+	slice := make([]E, 0, len(me.set))
 	for element := range me.set {
-		result = append(result, element)
+		slice = append(slice, element)
 	}
-	slices.Sort(result)
-	return result
+	return slice
 }
 
 // String returns a human readable string representation of the set.
 func (me *Set[E]) String() string {
 	format := "%s%v"
-	if me.hasStringElements() {
+	if me.HasStringElements() {
 		format = "%s%q"
 	}
 	var out strings.Builder
 	out.WriteByte('{')
 	sep := ""
-	for _, element := range me.ToSlice() { // <1>
+	for _, element := range me.ToSlice() {
 		fmt.Fprintf(&out, format, sep, element)
 		sep = " "
 	}
@@ -210,7 +207,7 @@ func (me *Set[E]) String() string {
 	return out.String()
 }
 
-func (me *Set[E]) hasStringElements() bool {
+func (me *Set[E]) HasStringElements() bool {
 	for key := range me.set {
 		_, ok := any(key).(string)
 		return ok

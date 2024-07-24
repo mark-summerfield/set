@@ -2,6 +2,7 @@
 package set
 
 import (
+	"cmp"
 	"fmt"
 	"slices"
 	"sort"
@@ -19,43 +20,72 @@ func check(act string, actSize int, exp string, expSize int, t *testing.T) {
 	}
 }
 
+func sorted[T cmp.Ordered](slice []T) []T {
+	slices.Sort(slice)
+	return slice
+}
+
+func sortedStr[T cmp.Ordered](s Set[T]) string {
+	items := []T{}
+	for item := range s.All() {
+		items = append(items, item)
+	}
+	slices.Sort(items)
+	var out strings.Builder
+	out.WriteByte('{')
+	sep := ""
+	for _, item := range items {
+		out.WriteString(sep)
+		if sep == "" {
+			sep = " "
+		}
+		if x, ok := any(item).(string); ok {
+			out.WriteString(fmt.Sprintf("%q", x))
+		} else {
+			out.WriteString(fmt.Sprint(item))
+		}
+	}
+	out.WriteByte('}')
+	return out.String()
+}
+
 func TestNew(t *testing.T) {
 	s1 := New[int]()
 	if !s1.IsEmpty() {
 		t.Errorf("unexpected nonempty")
 	}
-	check(s1.String(), s1.Len(), "{}", 0, t)
+	check(sortedStr(s1), s1.Len(), "{}", 0, t)
 	s2 := New(5)
 	if s2.IsEmpty() {
 		t.Errorf("unexpected empty")
 	}
-	check(s2.String(), s2.Len(), "{5}", 1, t)
+	check(sortedStr(s2), s2.Len(), "{5}", 1, t)
 	s3 := New(50, 35, 78)
-	check(s3.String(), s3.Len(), "{35 50 78}", 3, t)
+	check(sortedStr(s3), s3.Len(), "{35 50 78}", 3, t)
 	s4 := New("one", "two")
-	check(s4.String(), s4.Len(), "{\"one\" \"two\"}", 2, t)
+	check(sortedStr(s4), s4.Len(), "{\"one\" \"two\"}", 2, t)
 	a := New[int]()
-	check(a.String(), a.Len(), "{}", 0, t)
+	check(sortedStr(a), a.Len(), "{}", 0, t)
 	b := New("a string")
-	check(b.String(), b.Len(), "{\"a string\"}", 1, t)
+	check(sortedStr(b), b.Len(), "{\"a string\"}", 1, t)
 	c := New(19, 21, 1, 2, 4, 8)
-	check(c.String(), c.Len(), "{1 2 4 8 19 21}", 6, t)
+	check(sortedStr(c), c.Len(), "{1 2 4 8 19 21}", 6, t)
 	s := []string{"A", "B", "C", "De", "Fgh"}
 	d := New(s...)
-	check(d.String(), d.Len(), "{\"A\" \"B\" \"C\" \"De\" \"Fgh\"}", len(s),
-		t)
+	check(sortedStr(d), d.Len(), "{\"A\" \"B\" \"C\" \"De\" \"Fgh\"}",
+		len(s), t)
 }
 
 func TestToSlice(t *testing.T) {
 	s := New(19, 21, 1, 2, 4, 8)
-	u := s.ToSlice()
+	u := sorted(s.ToSlice())
 	sort.Ints(u)
 	check(fmt.Sprintf("%v", u), len(u), "[1 2 4 8 19 21]", s.Len(), t)
 }
 
 func TestToSortedSlice(t *testing.T) {
 	s := New(19, 21, 1, 7, 2, 4, 8, 0)
-	u := s.ToSlice()
+	u := sorted(s.ToSlice())
 	slices.Sort(u)
 	check(fmt.Sprintf("%v", u), len(u), "[0 1 2 4 7 8 19 21]", s.Len(), t)
 }
@@ -63,21 +93,21 @@ func TestToSortedSlice(t *testing.T) {
 func TestAdd(t *testing.T) {
 	s := New(19, 21, 1, 2, 4, 8)
 	s.Add(5, 7, 1, 19)
-	check(s.String(), s.Len(), "{1 2 4 5 7 8 19 21}", 8, t)
+	check(sortedStr(s), s.Len(), "{1 2 4 5 7 8 19 21}", 8, t)
 }
 
 func TestDelete(t *testing.T) {
 	s := New(19, 21, 1, 2, 5, 4, 8, 9, 11, 13, 7)
 	s.Delete(5, 7, 1, 19)
-	check(s.String(), s.Len(), "{2 4 8 9 11 13 21}", 7, t)
+	check(sortedStr(s), s.Len(), "{2 4 8 9 11 13 21}", 7, t)
 }
 
 func TestClear(t *testing.T) {
 	s := New(19, 21, 1, 2, 5, 4, 8, 9, 11, 13, 7)
 	s.Clear()
-	check(s.String(), s.Len(), "{}", 0, t)
+	check(sortedStr(s), s.Len(), "{}", 0, t)
 	s.Add(1, 2, 3)
-	check(s.String(), s.Len(), "{1 2 3}", 3, t)
+	check(sortedStr(s), s.Len(), "{1 2 3}", 3, t)
 }
 
 func TestContains(t *testing.T) {
@@ -94,9 +124,9 @@ func TestDifference(t *testing.T) {
 	s := New(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 	u := New(2, 4, 6, 8)
 	d := s.Difference(u)
-	check(d.String(), d.Len(), "{0 1 3 5 7 9}", 6, t)
+	check(sortedStr(d), d.Len(), "{0 1 3 5 7 9}", 6, t)
 	d = u.Difference(s)
-	check(d.String(), d.Len(), "{}", 0, t)
+	check(sortedStr(d), d.Len(), "{}", 0, t)
 }
 
 func TestSymmetricDifference(t *testing.T) {
@@ -107,13 +137,13 @@ func TestSymmetricDifference(t *testing.T) {
 	if !d.Equal(e) {
 		t.Errorf("unexpected unequal: d=%v e=%v", d, e)
 	}
-	check(d.String(), d.Len(), "{0 1 3 5 7 9}", 6, t)
+	check(sortedStr(d), d.Len(), "{0 1 3 5 7 9}", 6, t)
 	d = u.SymmetricDifference(s)
 	e = u.SymmetricDifference(s)
 	if !d.Equal(e) {
 		t.Errorf("unexpected unequal: d=%v e=%v", d, e)
 	}
-	check(d.String(), d.Len(), "{0 1 3 5 7 9}", 6, t)
+	check(sortedStr(d), d.Len(), "{0 1 3 5 7 9}", 6, t)
 }
 
 func TestIntersection(t *testing.T) {
@@ -124,33 +154,33 @@ func TestIntersection(t *testing.T) {
 	if !x.Equal(a) {
 		t.Errorf("unexpected unequal: %v != %v", x, a)
 	}
-	check(x.String(), x.Len(), "{2 4 6 8}", 4, t)
+	check(sortedStr(x), x.Len(), "{2 4 6 8}", 4, t)
 	v := New(1, 3, 5)
 	y := u.Intersection(v)
 	b := v.Intersection(u)
 	if !y.Equal(b) {
 		t.Errorf("unexpected unequal: %v != %v", y, b)
 	}
-	check(y.String(), y.Len(), "{}", 0, t)
+	check(sortedStr(y), y.Len(), "{}", 0, t)
 	z := v.Intersection(u)
 	c := u.Intersection(v)
 	if !z.Equal(c) {
 		t.Errorf("unexpected unequal: %v != %v", z, c)
 	}
-	check(z.String(), z.Len(), "{}", 0, t)
+	check(sortedStr(z), z.Len(), "{}", 0, t)
 }
 
 func TestUnion(t *testing.T) {
 	s := New(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 	u := New(2, 4, 6, 8, 10, 12)
 	x := s.Union(u)
-	check(x.String(), x.Len(), "{0 1 2 3 4 5 6 7 8 9 10 12}", 12, t)
+	check(sortedStr(x), x.Len(), "{0 1 2 3 4 5 6 7 8 9 10 12}", 12, t)
 }
 
 func TestUnite(t *testing.T) {
 	s := New(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 	s.Unite(New(2, 4, 6, 8, 10, 12))
-	check(s.String(), s.Len(), "{0 1 2 3 4 5 6 7 8 9 10 12}", 12, t)
+	check(sortedStr(s), s.Len(), "{0 1 2 3 4 5 6 7 8 9 10 12}", 12, t)
 }
 
 func TestClone(t *testing.T) {
@@ -158,7 +188,7 @@ func TestClone(t *testing.T) {
 	u := s.Clone()
 	u.Add(5)
 	s.Add(5)
-	check(s.String(), s.Len(), u.String(), u.Len(), t)
+	check(sortedStr(s), s.Len(), sortedStr(u), u.Len(), t)
 }
 
 func TestEqual(t *testing.T) {
@@ -231,7 +261,7 @@ func TestMap(t *testing.T) {
 	if !s.Contains(7) {
 		t.Error("expected to contain 7")
 	}
-	v := s.ToSlice()
+	v := sorted(s.ToSlice())
 	slices.Sort(v)
 	check(fmt.Sprintf("%v", v), len(v), "[0 1 2 3 4 5 6 7 8 9]", s.Len(), t)
 	w := make([]int, 0, s.Len())
@@ -261,7 +291,7 @@ func TestStringMaxElements(t *testing.T) {
 		out.WriteString(strconv.Itoa(i))
 	}
 	out.WriteByte('}')
-	check(s.String(), s.Len(), out.String(), s.Len(), t)
+	check(sortedStr(s), s.Len(), out.String(), s.Len(), t)
 }
 
 func TestAll(t *testing.T) {
@@ -296,7 +326,7 @@ func TestAllX(t *testing.T) {
 func TestEg(t *testing.T) {
 	s := New(1, 2, 3, 4, 5, 6)
 	d := s.Difference(New(2, 4))
-	v := d.ToSlice()
+	v := sorted(d.ToSlice())
 	slices.Sort(v)
 	check(fmt.Sprintf("%v", v), len(v), "[1 3 5 6]", d.Len(), t)
 }

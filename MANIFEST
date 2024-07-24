@@ -2,6 +2,8 @@ set.go
 
 set_test.go
 
+go.mod
+
 st.sh
 
 # vim: syn=yaml
