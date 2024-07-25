@@ -1,4 +1,7 @@
 // Copyright © 2024 Mark Summerfield. All rights reserved.
+
+// This package provides a generic unordered set implementation (using a map
+// under the hood).
 package set
 
 import (
