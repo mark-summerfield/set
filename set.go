@@ -1,7 +1,9 @@
 // Copyright © 2024 Mark Summerfield. All rights reserved.
 
 // This package provides a generic unordered set implementation (using a map
-// under the hood).
+// under the hood). ([TOC])
+//
+// [TOC]: file:///home/mark/app/golib/doc/index.html
 package set
 
 import (
